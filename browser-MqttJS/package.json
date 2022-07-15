@@ -1,0 +1,16 @@
+{
+  "name": "browser-mqttjs",
+  "version": "1.0.0",
+  "description": "MqttJS browerfied",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "browserify": "^17.0.0",
+    "mqtt": "^4.3.7",
+    "tinyify": "^3.0.0"
+  }
+}
