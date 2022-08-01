@@ -10,12 +10,17 @@ using UnityMqttJS;
 
 public class MqttJsWsConnectTest :  MonoBehaviour, IMqttClientOwner
 {
+
+    public static string wsDefBrokerUrl = "wss://newsweasel.com:15676/ws";
+
     public static JObject wsDefOptsObj =  new JObject {
         {"username", "apian_mqtt"},
         {"password", "apian_mqtt_pwd"},
         {"clean", true},
-        {"connectTimeout", 2000},
-        {"reconnectPeriod", 0} // disable autoreconnect (tends to loop on connect errors)
+        {"connectTimeout", 750},
+        {"keepalive", 1000},
+        {"reconnectPeriod", 500},
+        {"queueQoSZero", true}
     };
 
     public TMP_InputField UrlFld;
@@ -36,6 +41,7 @@ public class MqttJsWsConnectTest :  MonoBehaviour, IMqttClientOwner
     void Start()
     {
         ConfigFld.text = wsDefOptsObj.ToString();
+        UrlFld.text = wsDefBrokerUrl;
         outScrollBar = OutputFld.transform.Find("Scrollbar").gameObject.GetComponent<UnityEngine.UI.Scrollbar>();
         TopicSel.ClearOptions();
     }
@@ -64,7 +70,7 @@ public class MqttJsWsConnectTest :  MonoBehaviour, IMqttClientOwner
     public void DoDisconnect()
     {
         Debug.Log("Disconnect pressed.");
-        mqttInst.Disconnect();
+        mqttInst.End();
     }
 
     public void DoSubscribe()
@@ -114,7 +120,7 @@ public class MqttJsWsConnectTest :  MonoBehaviour, IMqttClientOwner
 
     public void OnError(string errMsg) {
         Log($"Error: {errMsg}");
-        mqttInst = null;
+        //mqttInst = null;
     }
     public void OnConnect(bool success, string connAck = null)
     {
@@ -130,12 +136,18 @@ public class MqttJsWsConnectTest :  MonoBehaviour, IMqttClientOwner
     public void OnDisconnect()
     {
         Log( $"Disconnected!");
-        mqttInst = null;
+       // mqttInst = null;
     }
 
     public void OnOffline()
     {
         Log( $"Offline!");
+        //mqttInst = null;
+    }
+
+    public void OnEnd()
+    {
+        Log( $"Shutdown complete");
         mqttInst = null;
     }
 

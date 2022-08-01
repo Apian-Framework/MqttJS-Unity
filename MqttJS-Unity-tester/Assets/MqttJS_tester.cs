@@ -15,7 +15,7 @@ public class MqttJS_tester : MonoBehaviour, IMqttClientOwner
     // Start is called before the first frame update
     void Start()
     {
-        StartCoroutine(run_tests());
+        // StartCoroutine(run_tests());
     }
 
     // Update is called once per frame
@@ -56,14 +56,14 @@ public class MqttJS_tester : MonoBehaviour, IMqttClientOwner
 
         //yield return new WaitForSeconds(1);
 
-        mqttInst.Disconnect();
+        mqttInst.End();
 
     }
 
     public void OnError(string _) {}
     public void OnConnect(bool _, string _2 = null) {}
     public void OnMessage(string _, string _2, string _3) {}
-    public void OnDisconnect() {}
+    public void OnDisconnect()    { }
     public void OnOffline() {}
-
+    public void OnEnd() {}
 }

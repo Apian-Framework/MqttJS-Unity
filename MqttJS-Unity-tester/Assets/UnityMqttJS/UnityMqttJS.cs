@@ -16,6 +16,7 @@ namespace UnityMqttJS
     {
         void OnError(string errJson);
         void OnConnect(bool success, string conAckJson = null);
+        void OnEnd(); // intentional shutdown complete
         void OnMessage(string topic, string message, string jsonPayload = null);
         void OnDisconnect(); // either requested or not
         void OnOffline(); // local client is actually offline? Not sure.
@@ -27,7 +28,7 @@ namespace UnityMqttJS
         void Subscribe(string topic, string optsJson=null);
         void Unsubscribe(string topic, string optJson=null);
         void Publish(string topic, string msg, string optsJson=null);
-        void Disconnect();
+        void End(); // shut it down
     }
 
     public class WebGLMqttJSLib : IMqttClient
@@ -48,7 +49,8 @@ namespace UnityMqttJS
             Action<string, string, string, string> msgCb,
             Action<string> closeCb,
             Action<string> offlineCb,
-            Action<string,string> onErrorCb);
+            Action<string,string> onErrorCb,
+            Action<string> endCb);
 
         [DllImport("__Internal")]
         private static extern bool MqttJS_Connect( string instId, string url, string optsJson);
@@ -66,7 +68,7 @@ namespace UnityMqttJS
         private static extern void MqttJS_Publish(string c_clientId, string c_topic, string c_msg, string c_optsJson);
 
         [DllImport("__Internal")]
-        private static extern void MqttJS_Disconnect(string c_clientId);
+        private static extern void MqttJS_End(string c_clientId);
 
 
 
@@ -74,7 +76,7 @@ namespace UnityMqttJS
         static WebGLMqttJSLib()
         {
             MqttInstances = new Dictionary<string, WebGLMqttJSLib>();
-            MqttJS_InitCallbacks( MqttJS_OnConnect, MqttJS_OnMessage, MqttJS_OnClose, MqttJS_OnOffline, MqttJS_OnError);
+            MqttJS_InitCallbacks( MqttJS_OnConnect, MqttJS_OnMessage, MqttJS_OnClose, MqttJS_OnOffline, MqttJS_OnError, MqttJS_OnEnd);
         }
 
 
@@ -129,6 +131,15 @@ namespace UnityMqttJS
                 Debug.LogError($"MqttJS_OnError() - clientId: {clientId} not found in MqttInstance");
         }
 
+        [MonoPInvokeCallback(typeof(Action<string>))]
+        public static void MqttJS_OnEnd( string clientId)
+        {
+            Debug.Log($"MqttJS_OnEnd() - clientId: {clientId}");
+            if (MqttInstances.ContainsKey(clientId))
+                MqttInstances[clientId].OnEnd();
+            else
+                Debug.LogError( $"MqttJS_OnEnd() - clientId: {clientId} not found in MqttInstances");
+        }
 
         //
         // Factory
@@ -176,11 +187,10 @@ namespace UnityMqttJS
             MqttJS_Publish(InstanceId, topic, msg, optsJson);
         }
 
-        public void Disconnect()
+        public void End()
         {
-            MqttJS_Disconnect(InstanceId);
+            MqttJS_End(InstanceId);
         }
-
 
         // Callbacks from JSlib
 
@@ -188,7 +198,7 @@ namespace UnityMqttJS
         {
             Debug.Log($"OnError(): errorJson: {errorJson}");
             Owner.OnError(errorJson);
-            _ShutdownInstances(InstanceId);
+            _ShutdownLibInstance(InstanceId);
         }
 
         private void OnConnect(string connAckJson)
@@ -204,26 +214,37 @@ namespace UnityMqttJS
             Owner.OnMessage(topic, msgTxt, packetJson);
         }
 
+        // Close just kinda happens sometimes...
+        // Let reconnect help with it unless we requested it.
         private void OnClose()
         {
             Debug.Log($"OnClose() - clientId: {InstanceId}");
             if (Connected)
-                Owner.OnDisconnect();
-            else
+            {
+                Connected = false;
+                Owner.OnError("Connection closed unexpectedly.");
+            } else
                 Owner.OnError("Connection failed");
-            _ShutdownInstances(InstanceId);
+
+            //_ShutdownInstances(InstanceId);
         }
 
+        // Offline just kinda happens sometimes too...
+        // Unless we asked to end let reconnect try to do it...
         private void OnOffline()
         {
             Debug.Log($"OnOffline() - clientId: {InstanceId}");
-            Owner.OnOffline();
-            _ShutdownInstances(InstanceId);
+            //Owner.OnOffline();
+            //_ShutdownInstances(InstanceId);
         }
 
-        private void _ShutdownInstances(string instanceId)
+        private void OnEnd()
         {
-            MqttJS_Disconnect(instanceId); // call client.end() if client is there.
+            _ShutdownLibInstance(InstanceId);
+        }
+
+        private void _ShutdownLibInstance(string instanceId)
+        {
             MqttJS_Delete(instanceId); // JS checks for null
             if (MqttInstances.ContainsKey(instanceId))
                 MqttInstances.Remove(instanceId);

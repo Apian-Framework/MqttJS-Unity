@@ -3,7 +3,7 @@ var MqttJS_API = {
   $dependencies:{},
 
   MqttJS_InitCallbacks__postset: 'var ClientInstances = { }; var cs_callbacks = { };',
-  MqttJS_InitCallbacks: function( onConnectCb_ptr, onMsgCb_ptr, onCloseCb_ptr, onOfflineCb_ptr, onErrorCb_ptr)
+  MqttJS_InitCallbacks: function( onConnectCb_ptr, onMsgCb_ptr, onCloseCb_ptr, onOfflineCb_ptr, onErrorCb_ptr, onEndCb_ptr)
   {
     console.log(`MqttJS_InitCallbacks()`)
     cs_callbacks["connect"] = onConnectCb_ptr;
@@ -11,6 +11,7 @@ var MqttJS_API = {
     cs_callbacks['close'] = onCloseCb_ptr;
     cs_callbacks['offline'] = onOfflineCb_ptr;
     cs_callbacks['error'] = onErrorCb_ptr;
+    cs_callbacks['end'] = onEndCb_ptr;
   },
 
   MqttJS_Connect: function(c_clientId, c_url, c_optsJson)
@@ -106,8 +107,11 @@ var MqttJS_API = {
     })
 
     client.on('end', function () {
-      // client.end() has been called
+      // client.end() has been called and everything closed
       console.log(`client.onEnd()`)
+      var cs_clientId = allocate(intArrayFromString(clientId))
+       dynCall_vi( cs_callbacks['end'], cs_clientId)
+       _free(cs_clientId)
     })
 
     client.on('disconnect', function () {
@@ -185,15 +189,15 @@ var MqttJS_API = {
     console.log(`MqttJS_Publish() - exit`)
   },
 
-  MqttJS_Disconnect: function (c_clientId)
+  MqttJS_End: function (c_clientId)
   {
     var clientId = UTF8ToString(c_clientId)
-    console.log(`MqttJS_Disconnect() - clientId: ${clientId}`)
+    console.log(`MqttJS_End() - clientId: ${clientId}`)
     client = ClientInstances[clientId]
     if (client)
       client.end();
     else
-      console.log(`MqttJS_Disconnect() - No client found.`)
+      console.log(`MqttJS_End() - No client found.`)
   },
 
  }
