@@ -20,7 +20,7 @@ public class MqttJsWsConnectTest :  MonoBehaviour, IMqttClientOwner
         {"connectTimeout", 750},
         {"keepalive", 1000},
         {"reconnectPeriod", 500},
-        {"queueQoSZero", true}
+        {"queueQoSZero", true}  // will queue up outgoing Qos0 messages if disconnected and send on reconnect
     };
 
     public TMP_InputField UrlFld;
