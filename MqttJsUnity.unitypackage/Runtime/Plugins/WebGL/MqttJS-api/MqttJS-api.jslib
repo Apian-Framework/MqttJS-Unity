@@ -30,16 +30,20 @@ var MqttJS_API = {
     } catch (error) {
       console.log(`connect exception - entry`)
       var errorJson = JSON.stringify(error)
-      console.log(`error:${errorJson}`)
+      console.log(`error: ${errorJson}`)
       var c_errorJson = allocate(intArrayFromString(errorJson), ALLOC_NORMAL)
-      dynCall_vii( cs_callbacks["error"], c_clientId, c_errorJson)
+      dynCall_viii( cs_callbacks["error"], c_clientId, c_errorJson, false) // no client yet so can't be reconnecting
       _free(c_errorJson)
       console.log(`connect exception - exit`)
+      console.log(`MqttJS_Connect() - exit(false) after exception `)
       return false;
     }
 
     if (!client)
+    {
+      console.log(`MqttJS_Connect() - exit (false)`)
       return false;
+    }
 
     ClientInstances[clientId] = client;
 
@@ -49,7 +53,8 @@ var MqttJS_API = {
       var errorJson = JSON.stringify(error)
       console.log(`error:${errorJson}`)
       var c_errorJson = allocate(intArrayFromString(errorJson), ALLOC_NORMAL)
-      dynCall_vii( cs_callbacks["error"], cs_clientId, c_errorJson)
+      var reconnecting = client.reconnecting;
+      dynCall_viii( cs_callbacks["error"], cs_clientId, c_errorJson, reconnecting)
       _free(cs_clientId)
       _free(c_errorJson)
       console.log(`on:error - exit`)
@@ -62,11 +67,18 @@ var MqttJS_API = {
       var errorJson = JSON.stringify(error)
       console.log(`error:${errorJson}`)
       var c_errorJson = allocate(intArrayFromString(errorJson), ALLOC_NORMAL)
-      dynCall_vii( cs_callbacks["error"], cs_clientId, c_errorJson)
+      var reconnecting = client.reconnecting;
+      dynCall_viii( cs_callbacks["error"], cs_clientId, c_errorJson, reconnecting)
       _free(cs_clientId)
       _free(c_errorJson)
       console.log(`on:stream.error - exit`)
+    })
 
+    // TODO: I think this is not ever called? Or not useful if it is?
+    client.stream.on('close', function (done) {
+      console.log(`on:stream.close - entry`)
+      console.log(`on:stream.close - done: ${done}`)
+      console.log(`on:stream.close - exit`)
     })
 
     client.on('connect', function (connAck) {
@@ -100,9 +112,11 @@ var MqttJS_API = {
 
     client.on('close', function () {
       // Emitted after a disconnection.
+      // ...or apparently a failed connection, too?
       console.log(`client.onClose()`)
       var cs_clientId = allocate(intArrayFromString(clientId))
-       dynCall_vi( cs_callbacks['close'], cs_clientId)
+      var reconnecting = client.reconnecting;
+      dynCall_vii( cs_callbacks['close'], cs_clientId, reconnecting)
        _free(cs_clientId)
     })
 
