@@ -261,8 +261,12 @@ namespace MqttJsUnity
         public static IMqttClient Create(IMqttClientOwner owner)
         {
             throw new NotImplementedException("Only works in WebGL builds");
-            return null;
         }
+        public void Connect(string url, string optsJson) {}
+        public void Subscribe(string topic, string optsJson = null) {}
+        public void Unsubscribe(string topic, string optsJson = null) {}
+        public void Publish(string topic, string msg, string optsJson = null) {}
+        public void End() {}
 
 
 #endif // UNITY_WEBGL
