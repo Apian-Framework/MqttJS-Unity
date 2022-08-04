@@ -147,11 +147,11 @@ using P2pNet;
 
         public void OnEnd()
         {
-            logger.Info($"MqttJs OnEnd()");
+            logger.Verbose($"MqttJs OnEnd()");
         }
         public void OnMessage(string topic, string message, string jsonPayload = null)
         {
-            logger.Verbose($"P2pNetMqttJs OnMessage() thread: {Environment.CurrentManagedThreadId}");
+            logger.Debug($"P2pNetMqttJs OnMessage() thread: {Environment.CurrentManagedThreadId}");
             P2pNetMessage msg = JsonConvert.DeserializeObject<P2pNetMessage>(message); // "message" is the json-encoded message data
 
             AddReceiptTimestamp(msg);

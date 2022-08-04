@@ -94,7 +94,7 @@ namespace MqttJsUnity
         [MonoPInvokeCallback(typeof(Action<string, string, string, string>))]
         public static void MqttJS_OnMessage( string clientId, string topic, string message, string msgJson)
         {
-            Debug.Log($"MqttJS_OnMessage() - clientId: {clientId}, topic: {topic}, message: {message}");
+            // Debug.Log($"MqttJS_OnMessage() - clientId: {clientId}, topic: {topic}, message: {message}");
             if (MqttInstances.ContainsKey(clientId))
                 MqttInstances[clientId].OnMessage(topic, message, msgJson);
             else
@@ -212,7 +212,7 @@ namespace MqttJsUnity
 
         private void OnMessage(string topic, string msgTxt, string packetJson)
         {
-            Debug.Log($"OnMessage(): clientId: {InstanceId} topic: {topic}, mesg: {msgTxt} packet: {packetJson}");
+            //Debug.Log($"OnMessage(): clientId: {InstanceId} topic: {topic}, mesg: {msgTxt} packet: {packetJson}");
             Owner.OnMessage(topic, msgTxt, packetJson);
         }
 

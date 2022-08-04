@@ -93,7 +93,7 @@ var MqttJS_API = {
     })
 
     client.on('message', function (topic, payload, packet) {
-      console.log(`on:message - entry: topic: ${topic} payload: ${payload} packet: ${packet}`)
+      // console.log(`on:message - entry: topic: ${topic} payload: ${payload} packet: ${packet}`)
       var cs_clientId = allocate(intArrayFromString(clientId)) // can't just use c_clientId from containing scope because it's a c#-land ref
       var c_topic = allocate(intArrayFromString(topic), ALLOC_NORMAL)
       var c_msgStr = allocate(intArrayFromString(payload.toString()), ALLOC_NORMAL)
@@ -106,7 +106,7 @@ var MqttJS_API = {
       _free(c_topic)
       _free(c_msgStr)
       _free(c_packetJson)
-      console.log(`on:message - exit`)
+      // console.log(`on:message - exit`)
       return true;
     })
 
@@ -189,7 +189,7 @@ var MqttJS_API = {
 
   MqttJS_Publish: function (c_clientId,  c_topic, c_msg, c_optsJson)
   {
-    console.log(`MqttJS_Publish() - entry`)
+    // console.log(`MqttJS_Publish() - entry`)
     var clientId = UTF8ToString(c_clientId)
     client = ClientInstances[clientId]
     var topic = UTF8ToString(c_topic)
@@ -200,7 +200,7 @@ var MqttJS_API = {
       var opts = JSON.parse(UTF8ToString(c_optsJson))
       client.publish(topic, msg, opts);
     }
-    console.log(`MqttJS_Publish() - exit`)
+    // console.log(`MqttJS_Publish() - exit`)
   },
 
   MqttJS_End: function (c_clientId)
