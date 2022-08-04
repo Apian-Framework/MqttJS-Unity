@@ -1,0 +1,21 @@
+{
+    "name": "com.apian-framework.p2pnetmqttjs",
+    "rootNamespace": "",
+    "references": [
+        "P2pNet",
+        "UniLog",
+        "com.apian-framework.mqttjsunity"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "Newtonsoft.Json.dll",
+        "com.apian-framework.mqttjsunity"
+    ],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

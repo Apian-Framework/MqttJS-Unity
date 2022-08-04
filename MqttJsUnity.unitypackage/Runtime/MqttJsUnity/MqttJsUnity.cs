@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 using AOT;
 #endif
 
-namespace UnityMqttJS
+namespace MqttJsUnity
 {
     public interface IMqttClientOwner
     {
@@ -260,7 +260,7 @@ namespace UnityMqttJS
 
         public static IMqttClient Create(IMqttClientOwner owner)
         {
-            throw new NotImplementedException("Only works in WebGL builds")
+            throw new NotImplementedException("Only works in WebGL builds");
             return null;
         }
 
