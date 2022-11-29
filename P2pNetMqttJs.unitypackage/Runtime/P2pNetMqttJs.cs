@@ -131,7 +131,7 @@ using P2pNet;
 
         public void OnConnect(bool success, string conAckJson = null)
         {
-            Listen(joinState.p2pBase.GetId()); // listen to our p2pId channel
+            Listen(joinState.p2pBase.LocalId); // listen to our p2pId channel
             joinState.IsConnected = true;
             // OnNetworkJoined needs to be synchronized
             if (joinState.mainSyncCtx != null)
